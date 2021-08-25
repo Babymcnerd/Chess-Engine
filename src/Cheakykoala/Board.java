@@ -56,19 +56,19 @@ public class Board {
         }
 
         if (movedPiece.getColor() == Color.w) {
-            boardEval = boardEval + movedPiece.getValueInt(63 - index);
+            boardEval = boardEval + movedPiece.getValueInt(index);
         } else {
-            boardEval = boardEval - movedPiece.getValueInt(index);
+            boardEval = boardEval - movedPiece.getValueInt(63 - index);
         }
 
         if (move.isInPassingMove(this)){
             if (movedPiece.getColor() == Color.w){
                 boardEval+= 100;
-                boardEval = boardEval + takenPiece.getValueInt(63 - (index - 8));
+                boardEval = boardEval + movedPiece.getValueInt(63 - (index - 8));
             }
             else{
                 boardEval -= 100;
-                boardEval = boardEval - takenPiece.getValueInt(index + 8);
+                boardEval = boardEval - movedPiece.getValueInt(index + 8);
             }
         }
         if (move.isCastleMove(this)){

@@ -13,7 +13,7 @@ public class Main {
     public static Color minimaxColor = Color.w;
     public static long startTime = System.currentTimeMillis();
     public static boolean timeout = false;
-    public static int TIMEOUT_TIME = 1000;
+    public static int TIMEOUT_TIME = 60000;
 
     public static void main(String[] args) throws InterruptedException {
         Board board = new Board();
@@ -24,8 +24,7 @@ public class Main {
     public static void apiConnect(Board board) {
         Scanner consoleInput = new Scanner(System.in);
         while (true) {
-            System.out.println(board.getBoardEval());
-            board.printBoard();
+//            board.printBoard();
             String input = consoleInput.nextLine();
             if (input.contains("go")) {
                 System.out.println(onGo(board));
@@ -76,7 +75,7 @@ public class Main {
             } else {
                 move = new Move(first, second);
             }
-            System.out.println (board.getBoardEval());
+//            System.out.println (board.getBoardEval());
             board.getPieceAt(first).move(board, move);
             if (index % 2 == 0) {
                 minimaxColor = Color.w;
@@ -99,10 +98,12 @@ public class Main {
             CURRENT_DEPTH = INITIAL_DEPTH + i;
             System.out.println("current depth is " + CURRENT_DEPTH);
             Move checkMove = moveMinimax(board, CURRENT_DEPTH, minimaxColor);
-            if (checkMove != null)
+            if (checkMove != null) {
                 bestMove = checkMove;
+            }
         }
-        System.out.println(System.currentTimeMillis() - startTime);
+//        System.out.println(System.currentTimeMillis() - startTime);
+        System.out.println(board.getBoardEval());
         if (bestMove.isPromotionMove(bestMove)) {
             return new StringBuilder().append("bestmove ").append(bestMove.getBeginning().convertPosition()).append(bestMove.getEnd().convertPosition()).append(bestMove.getPiece().getLetter()).toString();
         }
@@ -179,10 +180,10 @@ public class Main {
         if (isMaxPlayer) {
             color = Color.w;
             maxEval = Double.NEGATIVE_INFINITY;
-//            if (System.currentTimeMillis() - startTime > TIMEOUT_TIME){
-//                timeout = true;
-//                return 123456;
-//            }
+            if (System.currentTimeMillis() - startTime > TIMEOUT_TIME){
+                timeout = true;
+                return 123456;
+            }
             for (Piece[] pieces : board.getBoard()) {
                 for (Piece piece : pieces) {
                     if (piece.getColor() == Color.w) {

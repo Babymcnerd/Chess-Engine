@@ -13,12 +13,13 @@ public class Main {
     public static Color minimaxColor = Color.w;
     public static long startTime = System.currentTimeMillis();
     public static boolean timeout = false;
-    public static int TIMEOUT_TIME = 200;
+    public static int TIMEOUT_TIME = 10000;
 
     public static void main(String[] args) throws InterruptedException {
-        Board board = new Board();
-        apiConnect(board);
-//        timeMinimax();
+//        Board board = new Board();
+//        apiConnect(board);
+        timeMinimax();
+//        debugger();
     }
 
     public static void apiConnect(Board board) {
@@ -69,16 +70,13 @@ public class Main {
                 move = new Move(first, second);
             }
             movedPiece = board.getPieceAt(first);
-
+            board.changeEval(move, movedPiece);
+            System.out.println("move " + (i-2) + " " +board.getBoardEval());
             movedPiece.move(board, move);
             if (index % 2 == 0) {
                 minimaxColor = Color.w;
             } else {
                 minimaxColor = Color.b;
-            }
-            if (i+1 > UCIStringArray.length){
-                board.changeEval(move, movedPiece);
-                System.out.println("You Moved " + board.getBoardEval());
             }
         }
     }
@@ -98,8 +96,8 @@ public class Main {
             if (checkMove != null)
                 bestMove = checkMove;
         }
-        board.changeEval(bestMove, board.getPieceAt(bestMove.getBeginning()));
-        System.out.println("I Moved " + board.getBoardEval());
+//        board.changeEval(bestMove, board.getPieceAt(bestMove.getBeginning()));
+//        System.out.println("I Moved " + board.getBoardEval());
         if (bestMove.isPromotionMove(bestMove)) {
             return new StringBuilder().append("bestmove ").append(bestMove.getBeginning().convertPosition()).append(bestMove.getEnd().convertPosition()).append(bestMove.getPiece().getLetter()).toString();
         }
@@ -178,10 +176,10 @@ public class Main {
                 for (Piece piece : pieces) {
                     if (piece.getColor() == Color.w) {
                         for (Move move : piece.getMoves(board)) {
-                            if (System.currentTimeMillis() - startTime > TIMEOUT_TIME){
-                                timeout = true;
-                                return 123456;
-                            }
+//                            if (System.currentTimeMillis() - startTime > TIMEOUT_TIME){
+//                                timeout = true;
+//                                return 123456;
+//                            }
                             if (move.isCapture(board))
                                 captureMoveList.add(move);
                             else
@@ -214,10 +212,10 @@ public class Main {
                 for (Piece piece : pieces) {
                     if (piece.getColor() == Color.b) {
                         for (Move move : piece.getMoves(board)) {
-                            if (System.currentTimeMillis() - startTime > TIMEOUT_TIME){
-                                timeout = true;
-                                return 123456;
-                            }
+//                            if (System.currentTimeMillis() - startTime > TIMEOUT_TIME){
+//                                timeout = true;
+//                                return 123456;
+//                            }
                             if (move.isCapture(board))
                                 captureMoveList.add(move);
                             else
@@ -410,7 +408,7 @@ public class Main {
 
     public static void debugger() {
         Board board = new Board();
-        String fenString = "r3k2r/p1ppqNb1/bn2pnp1/3P4/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1";
+        String fenString = "r3k3/ppp5/5P2/8/4p3/NP6/P5PP/R3K1NR b KQq - 0 18";
         board.importBoard(fenString);
         board.printBoard();
         int total = 0;
@@ -425,7 +423,7 @@ public class Main {
                 if (p.getColor() == color) {
                     for (Move m : p.getMoves(board)) {
                         System.out.print(m.getBeginning().convertPosition() + " -> " + m.getEnd().convertPosition() + " ");
-                        nodes = countNodes(board.getChild(m), 2, getOppositeColor(color));
+                        nodes = countNodes(board.getChild(m), 1, getOppositeColor(color));
                         System.out.println(nodes);
                         total = total + nodes;
                     }
@@ -452,9 +450,9 @@ public class Main {
     public static void testNodes2() {
         Board board = new Board();
         ArrayList<String> fen = new ArrayList<>();
-        fen.add("r6r/1b2k1bq/8/8/7B/8/8/R3K2R b KQ - 3 2");
+        fen.add("r3k3/ppp5/5P2/8/4p3/NP6/P5PP/R3K1NR b KQq - 0 18");
 
-        board.importBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+        board.importBoard("r3k3/ppp5/5P2/8/4p3/NP6/P5PP/R3K1NR b KQq - 0 18");
         Color color = Color.w;
         board.printBoard();
         Position position = new Position(4, 0);

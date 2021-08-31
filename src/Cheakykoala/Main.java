@@ -13,12 +13,12 @@ public class Main {
     public static Color minimaxColor = Color.w;
     public static long startTime = System.currentTimeMillis();
     public static boolean timeout = false;
-    public static int TIMEOUT_TIME = 20000;
+    public static int TIMEOUT_TIME = 200;
 
     public static void main(String[] args) throws InterruptedException {
-//        Board board = new Board();
-//        apiConnect(board);
-        timeMinimax();
+        Board board = new Board();
+        apiConnect(board);
+//        timeMinimax();
     }
 
     public static void apiConnect(Board board) {
@@ -27,9 +27,9 @@ public class Main {
             String input = consoleInput.nextLine();
             if (input.contains("go")) {
                 System.out.println(onGo(board));
-            } else if (input.contains("uci")) {
+            } else if (input.equals("uci")) {
                 System.out.println("uciok");
-            } else if (input.contains("isready")) {
+            } else if (input.equals("isready")) {
                 System.out.println("readyok");
             } else if (input.contains("position")) {
                 UCIPosition(board, input);
@@ -52,9 +52,7 @@ public class Main {
                 i++;
             }
             fenString.stripLeading();
-            //position k7/5P2/8/8/8/8/8/K7 w - - 0 1 moves f7f8
             board.importBoard(fenString);
-            board.printBoard();
             startMoves = i + 1;
         }
         for (int i = startMoves; i < UCIStringArray.length; i++) {
@@ -62,13 +60,9 @@ public class Main {
             Move move;
             Position first = new Position(charToInt(UCIStringArray[i].charAt(0)), 8 - Character.getNumericValue(UCIStringArray[i].charAt(1)));
             Position second = new Position(charToInt(UCIStringArray[i].charAt(2)), 8 - Character.getNumericValue(UCIStringArray[i].charAt(3)));
-
-
             if (UCIStringArray[i].length() == 5) {
                 char letter = UCIStringArray[i].charAt(4);
                 move = new PromotionMove(first, second, makePiece(second, letter));
-
-
             } else {
                 move = new Move(first, second);
             }
@@ -94,12 +88,10 @@ public class Main {
                 break;
             }
             CURRENT_DEPTH = INITIAL_DEPTH + i;
-            System.out.println("current depth is " + CURRENT_DEPTH);
             Move checkMove = moveMinimax(board, CURRENT_DEPTH, minimaxColor);
             if (checkMove != null)
                 bestMove = checkMove;
         }
-        System.out.println(System.currentTimeMillis() - startTime);
         if (bestMove.isPromotionMove(bestMove)) {
             return new StringBuilder().append("bestmove ").append(bestMove.getBeginning().convertPosition()).append(bestMove.getEnd().convertPosition()).append(bestMove.getPiece().getLetter()).toString();
         }
@@ -174,14 +166,14 @@ public class Main {
         if (isMaxPlayer) {
             color = Color.w;
             maxEval = Double.NEGATIVE_INFINITY;
-//            if (System.currentTimeMillis() - startTime > TIMEOUT_TIME){
-//                timeout = true;
-//                return 123456;
-//            }
             for (Piece[] pieces : board.getBoard()) {
                 for (Piece piece : pieces) {
                     if (piece.getColor() == Color.w) {
                         for (Move move : piece.getMoves(board)) {
+                            if (System.currentTimeMillis() - startTime > TIMEOUT_TIME){
+                                timeout = true;
+                                return 123456;
+                            }
                             if (move.isCapture(board))
                                 captureMoveList.add(move);
                             else
@@ -205,7 +197,6 @@ public class Main {
                     break;
                 }
             }
-//            sortArray(moveList);
             return maxEval;
         }
         else {
@@ -215,6 +206,10 @@ public class Main {
                 for (Piece piece : pieces) {
                     if (piece.getColor() == Color.b) {
                         for (Move move : piece.getMoves(board)) {
+                            if (System.currentTimeMillis() - startTime > TIMEOUT_TIME){
+                                timeout = true;
+                                return 123456;
+                            }
                             if (move.isCapture(board))
                                 captureMoveList.add(move);
                             else
@@ -325,42 +320,12 @@ public class Main {
 //        }
 //    }
 
-//    public static double evalBoard(Board board) {
-//        int eval = 0;
-//        for (Piece[] pieces : board.getBoard()) {
-//            for (Piece piece : pieces) {
-//                if (piece.getColor() == Color.w) {
-//                    eval += getPieceEval(piece);
-//                    eval += getTableValue(piece, piece.getColor());
-//                } else {
-//                    eval -= getPieceEval(piece);
-//                    eval -= getTableValue(piece, piece.getColor());
-//                }
-//            }
-//        }
-//        return eval;
-//    }
-
     public static double checkmateEval(Color color) {
         if (color == Color.w)
             return Double.NEGATIVE_INFINITY;
         else
             return Double.POSITIVE_INFINITY;
     }
-
-//    public static int getTableValue(Piece piece, Color color) {
-//        int[] valueTable = piece.getValueTable();
-//        Position piecePosition = piece.getPosition();
-//        int x = piecePosition.getX();
-//        int y = piecePosition.getY();
-//        if (color == Color.w) {
-//            return valueTable[(y * 8) + x];
-//        } else if (color != Color.g) {
-////            System.out.println(x + " " + y);
-//            return valueTable[63 - ((y * 8) + x)];
-//        }
-//        return 0;
-//    }
 
     public static void playHuman(Board board, Color color) {
         Scanner input = new Scanner(System.in);

@@ -27,20 +27,20 @@ public class Board {
     public void changeEval(Move move, Piece movedPiece) {
         int index = move.getBeginning().getX() + move.getBeginning().getY() * 7;
         if (movedPiece.getColor() == Color.w) {
-            boardEval = boardEval - movedPiece.getValueTable(index);
+            boardEval = boardEval - movedPiece.getValueInt(index);
         } else {
             index = 63 - index;
-            boardEval = boardEval + movedPiece.getValueTable(index);
+            boardEval = boardEval + movedPiece.getValueInt(index);
         }
 
         Piece takenPiece = this.getPieceAt(move.getEnd());
         if (takenPiece.getColor() != Color.g){
             if (takenPiece.getColor() == Color.w) {
-                boardEval = boardEval - this.getPieceAt(move.getEnd()).getValueTable(index) - takenPiece.getPieceEval();
+                boardEval = boardEval - this.getPieceAt(move.getEnd()).getValueInt(index) - takenPiece.getPieceEval();
 
             } else {
                 index = 63 - index;
-                boardEval = boardEval + this.getPieceAt(move.getEnd()).getValueTable(index) + takenPiece.getPieceEval();
+                boardEval = boardEval + this.getPieceAt(move.getEnd()).getValueInt(index) + takenPiece.getPieceEval();
             }
         }
 
@@ -55,10 +55,10 @@ public class Board {
 
         index = move.getEnd().getX() + move.getEnd().getY() * 7;
         if (movedPiece.getColor() == Color.w) {
-            boardEval = boardEval + movedPiece.getValueTable(index);
+            boardEval = boardEval + movedPiece.getValueInt(index);
         } else {
             index = 63 - index;
-            boardEval = boardEval - movedPiece.getValueTable(index);
+            boardEval = boardEval - movedPiece.getValueInt(index);
         }
     }
 
@@ -464,7 +464,52 @@ public class Board {
                 y++;
             }
         }
+        boardEval = this.evalBoard(this);
+    }
 
+    public double evalBoard(Board board) {
+        int eval = 0;
+        for (Piece[] pieces : board.getBoard()) {
+            for (Piece piece : pieces) {
+                if (piece.getColor() == Color.w) {
+                    eval += getPieceEval(piece);
+                    eval += getTableValue(piece, piece.getColor());
+                } else {
+                    eval -= getPieceEval(piece);
+                    eval -= getTableValue(piece, piece.getColor());
+                }
+            }
+        }
+        return eval;
+    }
+
+    public double getPieceEval(Piece piece) {
+        char letter = Character.toUpperCase(piece.getLetter());
+        switch (letter) {
+            case 'R':
+                return 500;
+            case 'N':
+            case 'B':
+                return 300;
+            case 'Q':
+                return 900;
+            case 'P':
+                return 100;
+        }
+        return 0;
+    }
+
+    public int getTableValue(Piece piece, Color color) {
+        int[] valueTable = piece.getValueTable();
+        Position piecePosition = piece.getPosition();
+        int x = piecePosition.getX();
+        int y = piecePosition.getY();
+        if (color == Color.w) {
+            return valueTable[(y * 8) + x];
+        } else if (color != Color.g) {
+            return valueTable[63 - ((y * 8) + x)];
+        }
+        return 0;
     }
 
     public Piece getPiece(char letter, int x, int y) {

@@ -36,8 +36,12 @@ public abstract class Piece {
         return (this.color == Color.w && piece.getColor() == Color.b) || (this.color == Color.b && piece.getColor() == Color.w);
     }
 
-    public int getValueTable(int index){
-        return valueTable[index];
+    public int[] getValueTable(){
+        return valueTable;
+    }
+
+    public int getValueInt(int x){
+        return valueTable[x];
     }
 
     public boolean isSameColor(Piece piece) {

@@ -55,24 +55,30 @@ public class Main {
             board.importBoard(fenString);
             startMoves = i + 1;
         }
+        Piece movedPiece;
+        Move move;
         for (int i = startMoves; i < UCIStringArray.length; i++) {
             index++;
-            Move move;
             Position first = new Position(charToInt(UCIStringArray[i].charAt(0)), 8 - Character.getNumericValue(UCIStringArray[i].charAt(1)));
             Position second = new Position(charToInt(UCIStringArray[i].charAt(2)), 8 - Character.getNumericValue(UCIStringArray[i].charAt(3)));
+
             if (UCIStringArray[i].length() == 5) {
                 char letter = UCIStringArray[i].charAt(4);
                 move = new PromotionMove(first, second, makePiece(second, letter));
             } else {
                 move = new Move(first, second);
             }
-            Piece movedPiece = board.getPieceAt(first);
-            board.changeEval(move, movedPiece);
+            movedPiece = board.getPieceAt(first);
+
             movedPiece.move(board, move);
             if (index % 2 == 0) {
                 minimaxColor = Color.w;
             } else {
                 minimaxColor = Color.b;
+            }
+            if (i+1 > UCIStringArray.length){
+                board.changeEval(move, movedPiece);
+                System.out.println("You Moved " + board.getBoardEval());
             }
         }
     }
@@ -92,6 +98,8 @@ public class Main {
             if (checkMove != null)
                 bestMove = checkMove;
         }
+        board.changeEval(bestMove, board.getPieceAt(bestMove.getBeginning()));
+        System.out.println("I Moved " + board.getBoardEval());
         if (bestMove.isPromotionMove(bestMove)) {
             return new StringBuilder().append("bestmove ").append(bestMove.getBeginning().convertPosition()).append(bestMove.getEnd().convertPosition()).append(bestMove.getPiece().getLetter()).toString();
         }

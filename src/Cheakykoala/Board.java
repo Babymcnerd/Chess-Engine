@@ -12,7 +12,7 @@ public class Board {
     boolean canEnpassant = false;
     int whiteCastleMoveState = 0;
     int blackCastleMoveState = 0;
-    static double boardEval;
+    double boardEval;
     int count = 0;
     Color colorToMove = Color.w;
 

@@ -13,7 +13,7 @@ public class Board {
     int whiteCastleMoveState = 0;
     int blackCastleMoveState = 0;
     double boardEval;
-    int count = 0;
+    static int changeEvalCount = 0;
     Color colorToMove = Color.w;
 
     public Board() {
@@ -24,7 +24,13 @@ public class Board {
         return boardEval;
     }
 
+    public int getChangeEvalCount(){
+        return changeEvalCount;
+    }
+
     public void changeEval(Move move, Piece movedPiece) {
+        changeEvalCount++;
+
         int index = move.getBeginning().getX() + move.getBeginning().getY() * 8;
         if (movedPiece.getColor() == Color.w) {
             boardEval = boardEval - movedPiece.getValueInt(index);
@@ -607,7 +613,6 @@ public class Board {
         child.increaseWhiteMoveState(this.getWhiteCastleMoveState());
         child.increaseBlackMoveState(this.getBlackCastleMoveState());
         child.copyBoard(this);
-        child.changeEval(move, child.getPieceAt(move.getBeginning()));
         child.getPieceAt(move.getBeginning()).move(child, move);
         return child;
     }

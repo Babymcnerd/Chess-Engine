@@ -160,6 +160,7 @@ public abstract class Piece {
 
     public void move(Board board, Move move) {
         board.setMoveState(this, move);
+        board.changeEval(move, board.getPieceAt(move.getBeginning()));
         if (move.isPromotionMove(move)) {
             promotionMove(move, board);
         } else if (move.isCastleMove(board)) {

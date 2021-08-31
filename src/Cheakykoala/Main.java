@@ -13,7 +13,8 @@ public class Main {
     public static Color minimaxColor = Color.w;
     public static long startTime = System.currentTimeMillis();
     public static boolean timeout = false;
-    public static int TIMEOUT_TIME = 10000;
+    public static int miniMaxCount = 0;
+    final public static int TIMEOUT_TIME = 10000;
 
     public static void main(String[] args) throws InterruptedException {
 //        Board board = new Board();
@@ -70,8 +71,6 @@ public class Main {
                 move = new Move(first, second);
             }
             movedPiece = board.getPieceAt(first);
-            board.changeEval(move, movedPiece);
-            System.out.println("move " + (i-2) + " " +board.getBoardEval());
             movedPiece.move(board, move);
             if (index % 2 == 0) {
                 minimaxColor = Color.w;
@@ -96,8 +95,6 @@ public class Main {
             if (checkMove != null)
                 bestMove = checkMove;
         }
-//        board.changeEval(bestMove, board.getPieceAt(bestMove.getBeginning()));
-//        System.out.println("I Moved " + board.getBoardEval());
         if (bestMove.isPromotionMove(bestMove)) {
             return new StringBuilder().append("bestmove ").append(bestMove.getBeginning().convertPosition()).append(bestMove.getEnd().convertPosition()).append(bestMove.getPiece().getLetter()).toString();
         }
@@ -107,6 +104,7 @@ public class Main {
     public static Move moveMinimax(Board board, int depth, Color color) {
         double bestMoveValue;
         boolean isMaxPlayer;
+
         if (color == Color.w) {
             bestMoveValue = Double.NEGATIVE_INFINITY;
             isMaxPlayer = false;
@@ -151,15 +149,18 @@ public class Main {
 
     public static void timeMinimax() {
         Board board = new Board();
-//        board.importBoard("r2q1bnr/pp1p1kpp/1p1pn3/2b2p2/B2P2QP/1PP1NR2/P1N1B1P1/R3KP2 w Q - 0 1");
+        board.importBoard("r2q1bnr/pp1p1kpp/1p1pn3/2b2p2/B2P2QP/1PP1NR2/P1N1B1P1/R3KP2 w Q - 0 1");
         board.printBoard();
         double start = System.currentTimeMillis();
         System.out.println (moveMinimax(board, 5, Color.w));
         double end = System.currentTimeMillis();
         System.out.println((end - start) / 1000.0);
+        System.out.println ("changeEval: " + board.getChangeEvalCount());
+        System.out.println ("miniMax: " + miniMaxCount);
     }
 
     public static double minimax(Board board, int depth, double alpha, double beta, boolean isMaxPlayer) {
+        miniMaxCount++;
         ArrayList<Move> moveList =  new ArrayList<>();
         ArrayList<Move> captureMoveList =  new ArrayList<>();
         double eval;
@@ -229,7 +230,7 @@ public class Main {
                 if (board.isColorInCheck(color))
                     return checkmateEval(color);
                 else
-                    return 0; // <--- this is most likely not right
+                    return 0;
             }
             for (Move m: moveList) {
                 eval = minimax(board.getChild(m), depth - 1, alpha, beta, true);
